@@ -1,3 +1,4 @@
+using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,8 +14,26 @@ builder.Services.AddDbContext<StoreContext>(
     x => x.UseSqlite
     (builder.Configuration
         .GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 
 var app = builder.Build();
+//migrate any database changes on startup (includes initial db creation)
+using(var scope = app.Services.CreateScope())
+{
+    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+    try
+    {
+        var dataContext = scope.ServiceProvider.GetRequiredService<StoreContext>();
+        await dataContext.Database.MigrateAsync();
+        await StoreContextSeed.SeedAsync(dataContext, loggerFactory);
+    }
+    catch(Exception ex)
+    {
+        var logger = loggerFactory.CreateLogger<Program>();
+        logger.LogError(ex, "An error occured during migration");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
