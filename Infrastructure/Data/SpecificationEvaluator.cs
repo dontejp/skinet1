@@ -16,6 +16,7 @@ namespace Infrastructure.Data
 
             if(spec.Criteria != null)
             {
+                // replacement for p => p.ProductTypeId = 1
                 query = query.Where(spec.Criteria);
             }
             //we are using multiple includes so we have to aggregate them here and it passes it to our query
