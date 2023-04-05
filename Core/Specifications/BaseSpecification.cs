@@ -8,9 +8,18 @@ namespace Core.Specifications
 {
     public class BaseSpecification<T> : ISpecification<T>
     {
+        public BaseSpecification()
+        {
+        }
+
         public BaseSpecification(Expression<Func<T, bool>> criteria)
         {
             Criteria = criteria;
+        }
+
+        public BaseSpecification(Expression<Func<T, bool>> criteria, List<Expression<Func<T, object>>> includes) : this(criteria)
+        {
+            Includes = includes;
         }
 
         public Expression<Func<T, bool>> Criteria {get;}
